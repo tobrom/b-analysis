@@ -10,7 +10,7 @@ shinyServer(function(input, output) {
  
    beerData <- reactive({
 
-    read.csv("bd.csv")
+     read.csv("bd.csv")
     
     })
    
@@ -19,11 +19,11 @@ shinyServer(function(input, output) {
      
      switch(input$dimension,
             
-            "type" = selectInput("typ1", "Select Company", choices = c("***", paste(unique(beerData()$Typ))), selected = "***"),
-            
-            "sort" =  selectInput("typ2", "Select Company", choices = c("***", paste(unique(beerData()$SortimentText))), selected = "***"))
+            "type" =  selectInput("typ1", "Select Compan", 
+                                  choices = c("A", paste(unique(beerData()$Typ))), selected = "A"),
+            "sort" =  selectInput("sort1", "Select Compan", 
+                                  choices = c("A", paste(unique(beerData()$SortimentText))), selected = "A"))
    }) 
-   
    
    
    
@@ -32,93 +32,58 @@ shinyServer(function(input, output) {
   
 
 output$plot1 <- renderPlot({
-  
 
-  if (input$dimension == "type") {
-  
-  
-  
-  if (input$typ1 == "***") {
-  
-  
-  beerData() %>% 
-    filter(year >= 1990) %>%
-    group_by(year, Typ) %>% 
-    summarise(Nya = length(Namn)) %>%
-    ggplot(aes(x = year, y = Nya, fill = Typ)) + 
-    geom_bar(stat = "identity") +
-    labs(x = "Year", y = "New Products") +
-    theme(panel.background = element_blank(),
-          plot.background = element_blank(),
-          panel.grid.major.y = element_line(colour = "grey", linetype="dashed", size = 0.1),
-          panel.grid.major.x = element_line(colour = "grey", size = 0.1))
 
-  } else { 
+  if (input$dimension == "type") { 
+    
+    req(input$typ1)
+    
+   types <- if(input$typ1 == "A") {unique(beerData()$Typ)} else {input$typ1}
+   
+ # types <- unique(beerData()$SortimentText)
   
+   beerData() %>% 
+     
+     filter(year >= 1990) %>%
+     filter(Typ %in% types) %>%
+     group_by(year, Typ) %>% 
+     summarise(Nya = length(Namn)) %>%
+     ggplot(aes(x = year, y = Nya, fill = Typ)) + 
+     geom_bar(stat = "identity") +
+     labs(x = "Year", y = "New Products") +
+     theme(panel.background = element_blank(),
+           plot.background = element_blank(),
+           panel.grid.major.y = element_line(colour = "grey", linetype="dashed", size = 0.1),
+           panel.grid.major.x = element_line(colour = "grey", size = 0.1))
+   
   
-  beerData() %>% 
+  } else {
+    
+    req(input$sort1)
+    
+    types <- if(input$sort1 == "A") {unique(beerData()$SortimentText)} else {input$sort1}
+    
+    # types <- unique(beerData()$SortimentText)
+    
+    beerData() %>% 
+      
       filter(year >= 1990) %>%
-    filter(Typ == input$typ1) %>%
-    group_by(year, Typ) %>% 
-    summarise(Nya = length(Namn)) %>%
-    ggplot(aes(x = year, y = Nya, fill = Typ)) + 
-    geom_bar(stat = "identity") +
+      filter(SortimentText %in% types) %>%
+      group_by(year, SortimentText) %>% 
+      summarise(Nya = length(Namn)) %>%
+      ggplot(aes(x = year, y = Nya, fill = SortimentText)) + 
+      geom_bar(stat = "identity") +
       labs(x = "Year", y = "New Products") +
       theme(panel.background = element_blank(),
             plot.background = element_blank(),
             panel.grid.major.y = element_line(colour = "grey", linetype="dashed", size = 0.1),
             panel.grid.major.x = element_line(colour = "grey", size = 0.1))
+    
+    
+  }
   
-  }
-    
-    
-  } else {
-    
-    
-    if (input$typ2 == "***") {
-      
-      
-      beerData() %>% 
-        filter(year >= 1990) %>%
-        group_by(year, SortimentText) %>% 
-        summarise(Nya = length(Namn)) %>%
-        ggplot(aes(x = year, y = Nya, fill = SortimentText)) + 
-        geom_bar(stat = "identity") +
-        labs(x = "Year", y = "New Products") +
-        theme(panel.background = element_blank(),
-              plot.background = element_blank(),
-              panel.grid.major.y = element_line(colour = "grey", linetype="dashed", size = 0.1),
-              panel.grid.major.x = element_line(colour = "grey", size = 0.1))
-      
-    } else { 
-      
-      
-      beerData() %>% 
-        filter(year >= 1990) %>%
-        filter(SortimentText == input$typ2) %>%
-        group_by(year, SortimentText) %>% 
-        summarise(Nya = length(Namn)) %>%
-        ggplot(aes(x = year, y = Nya, fill = SortimentText)) + 
-        geom_bar(stat = "identity") +
-        labs(x = "Year", y = "New Products") +
-        theme(panel.background = element_blank(),
-              plot.background = element_blank(),
-              panel.grid.major.y = element_line(colour = "grey", linetype="dashed", size = 0.1),
-              panel.grid.major.x = element_line(colour = "grey", size = 0.1))
-      
-    }
-    
-    
-  }
-    
-    
-    
     
 })
-
-
-
-
 
 })
 

@@ -43,7 +43,7 @@ shinyUI(fluidPage(
                           
                           helpText("Introduction to what the tabs does..."),
                           
-                          selectInput("typ2", "Select Company", choices = paste(beerData$Typ))
+                          selectInput("typx", "Select Company", choices = paste(beerData$Typ))
                           
                         ),
                         
