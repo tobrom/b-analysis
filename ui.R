@@ -1,7 +1,9 @@
 library(shiny)
 library(ggplot2)
+library(stringr)
 
 beerData <- read.csv("bd.csv")
+beerData$Alkoholhalt <- as.numeric(str_replace_all(beerData$Alkoholhalt, "%", ""))
 
 shinyUI(fluidPage(
   
@@ -9,33 +11,94 @@ shinyUI(fluidPage(
   
   navbarPage("",
              
-             tabPanel("Overview",
+             tabPanel("Trends",
                       
                       sidebarLayout(
                         
                         sidebarPanel(
                           
-                          helpText("Introduction to what the tabs does..."),
+                          helpText("Here you can view the development in new
+                                    new beers both in terms  of type of beer 
+                                    and per assortment."),
                           
                           radioButtons("dimension", "Dimension type:",
                                        c("Type" = "type",
-                                         "Sortiment" = "sort")),
-                          
+                                         "Assortment" = "sort")),
                           uiOutput("ui")
+                          ),
+                        mainPanel(
+                          h3("Number of New Beers per Year"),
+                          plotOutput("plot1", height = "700px")
+                        )
+                      )
+             ),
+             
+             tabPanel("Price",
+                      
+                      sidebarLayout(
+                        
+                        sidebarPanel(
+                          
+                          helpText("Here you can look at the distribution of
+                                   beer prices per type. In addition it is 
+                                   possible to filter based on the assortment."),
+                          
+                          selectizeInput('assortment_price', 
+                                         label = NULL, choices = paste(beerData$SortimentText),
+                                         options = list(maxItems = length(unique(beerData$SortimentText)), 
+                                                        placeholder = 'Select Assortment (s)...')),
+                          
+                          sliderInput("range_price", "Range:",
+                                      min = 0, max = round(max(beerData$PrisPerLiter), 0),
+                                      value = c(0, round(max(beerData$PrisPerLiter)), 0))
+                        ),
+                        
+                        mainPanel(
+                          plotOutput("plot2", height = "700px")
+                        )
+                      )
+             ),
+             
+             tabPanel("Alcohol",
+                      
+                      sidebarLayout(
+                        
+                        sidebarPanel(
+                          
+                          helpText("Here you can look at the distribution of
+                                   alcohol levels per type. In addition it is 
+                                   possible to filter based on the assortment."),
+                          
+                          selectizeInput('assortment_alcohol', 
+                                         label = NULL, choices = paste(beerData$SortimentText),
+                                         options = list(maxItems = length(unique(beerData$SortimentText)), 
+                                                        placeholder = 'Select Assortment (s)...'))
                           
                           ),
+                        mainPanel(
+                        plotOutput("plot3", height = "700px")
+                     )
+                  )
+                ),
+             
+             tabPanel("Taste",
+                      
+                      sidebarLayout(
+                        
+                        sidebarPanel(
+                          
+                          helpText("Introduction to what the tabs does...")
+                          
+                        ),
                         
                         mainPanel(
-                          
-                          h3("Yearly New Products"),
-                          plotOutput("plot1")
-                          
+                        
+                          plotOutput("plotxxx")
                         )
                       )
              ),
              
-             
-             tabPanel("Overview",
+             tabPanel("Recommendation",
                       
                       sidebarLayout(
                         
@@ -43,43 +106,20 @@ shinyUI(fluidPage(
                           
                           helpText("Introduction to what the tabs does..."),
                           
-                          selectInput("typx", "Select Company", choices = paste(beerData$Typ))
+                          selectizeInput('beer', label = "dsdsd", choices = paste(beerData$Namn),
+                            options = list(maxItems = 1, placeholder = 'select a state name'))
                           
                         ),
                         
                         mainPanel(
-                          
-                          h3("All IPOs - Bag of Words"),
-                          plotOutput("plot2")
-                          
-                        )
+                   
+                          plotOutput("plotyy")
                       )
-             ),
-  
-             tabPanel("Overview",
-                      
-                      sidebarLayout(
-                        
-                        sidebarPanel(
-                          
-                          helpText("Introduction to what the tabs does..."),
-                          
-                          selectInput("typ3", "Select Company", choices = paste(beerData$Typ))
-                          
-                        ),
-                        
-                        mainPanel(
-                          
-                          h3("All IPOs - Bag of Words"),
-                          plotOutput("plot3")
-                          
-                        )
-                      )
+                    )
+                  )
              )
-      
-    )
-   )
-  )
+           )
+        )
   
   
   
